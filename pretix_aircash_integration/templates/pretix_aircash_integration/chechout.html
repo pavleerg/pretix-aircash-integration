@@ -1,0 +1,36 @@
+<div>
+  <h3>Scan to pay</h3>
+  {% if qr_data_uri %}
+    <img src="{{ qr_data_uri }}" alt="Payment QR" style="max-width:240px;height:auto" />
+  {% else %}
+    <code>{{ qr_payload }}</code>
+  {% endif %}
+
+  <p>Order {{ order.code }} — Amount: {{ payment.amount }} {{ order.event.currency }}</p>
+  <p class="status">Waiting for payment…</p>
+</div>
+
+<script>
+  (function() {
+    const checkUrl = "{{ check_url }}";
+    const redirectTarget = "{{ redirect_target }}";
+    const statusEl = document.querySelector('.status');
+
+    async function poll() {
+      try {
+        const r = await fetch(checkUrl, { cache: 'no-store' });
+        const { state } = await r.json(); // created|pending|confirmed|failed|canceled|refunded
+        if (state === "confirmed") {
+          statusEl.textContent = "Payment received. Redirecting…";
+          window.location.href = redirectTarget;
+          return;
+        } else if (state === "failed" || state === "canceled") {
+          statusEl.textContent = "Payment failed or canceled. You can go back and choose another method.";
+          return;
+        }
+      } catch(e) {}
+      setTimeout(poll, 3000);
+    }
+    poll();
+  })();
+</script>

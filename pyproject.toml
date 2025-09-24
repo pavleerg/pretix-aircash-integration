@@ -1,0 +1,42 @@
+[project]
+name = "pretix-aircash-integration"
+dynamic = ["version"]
+description = "A plugin to allow Aircash as a payment option"
+readme = "README.rst"
+license = {text = "Apache"}
+keywords = ["pretix"]
+authors = [
+    {name = "Pavle Ergović", email = "pavle.ergovic@kset.org"},
+]
+maintainers = [
+    {name = "Pavle Ergović", email = "pavle.ergovic@kset.org"},
+]
+
+dependencies = [
+]
+
+[project.entry-points."pretix.plugin"]
+pretix_aircash_integration = "pretix_aircash_integration:PretixPluginMeta"
+
+[project.entry-points."distutils.commands"]
+build = "pretix_plugin_build.build:CustomBuild"
+
+[build-system]
+requires = [
+    "setuptools",
+    "pretix-plugin-build",
+]
+
+[project.urls]
+homepage = "pretix-aircash-integration"
+repository = "pretix-aircash-integration"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.dynamic]
+version = {attr = "pretix_aircash_integration.__version__"}
+
+[tool.setuptools.packages.find]
+include = ["pretix*"]
+namespaces = false

@@ -1,0 +1,5 @@
+recursive-include pretix_aircash_integration/static *
+recursive-include pretix_aircash_integration/templates *
+recursive-include pretix_aircash_integration/locale *
+include LICENSE
+exclude .gitlab-ci.yml

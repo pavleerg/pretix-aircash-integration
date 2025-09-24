@@ -1,0 +1,5 @@
+[plugin]
+package = "pretix-aircash-integration"
+modules = [ "pretix_aircash_integration" ]
+marketplace_name = "aircash-integration"
+

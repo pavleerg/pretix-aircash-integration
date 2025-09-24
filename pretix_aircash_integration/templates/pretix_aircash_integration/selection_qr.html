@@ -1,0 +1,11 @@
+{% if qr_data_uri %}
+  <div style="display:flex;align-items:center;gap:12px">
+    <img src="{{ qr_data_uri }}" alt="Aircash QR" style="max-width:140px;height:auto;border:1px solid #eee;padding:6px;border-radius:6px" />
+    <div>
+      <strong>Aircash</strong>
+      <p style="margin:6px 0 0 0">{{ hint }}</p>
+    </div>
+  </div>
+{% else %}
+  <p>Scan &amp; pay with Aircash on the next step.</p>
+{% endif %}
