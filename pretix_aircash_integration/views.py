@@ -4,7 +4,7 @@ from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.csrf import csrf_exempt
-
+from pretix.presale.utils import event_view
 from pretix.base.models import OrderPayment
 from pretix.base.payment import PaymentException
 from pretix.multidomain.urlreverse import eventreverse
@@ -51,11 +51,8 @@ def return_cancel(request, organizer, event):
 
 
 @csrf_exempt
+@event_view 
 def webhook(request, organizer, event):
-    """
-    Aircash webhook: GET ?partnerTransactionId=ORDER-localid
-    Runs status check and updates payment state.
-    """
     partner_transaction_id = request.GET.get("partnerTransactionId")
     if not partner_transaction_id:
         return HttpResponse(status=400)
@@ -76,6 +73,6 @@ def webhook(request, organizer, event):
     try:
         provider.check_payment_status(payment)
     except PaymentException:
-        return HttpResponse(status=500)
+        return HttpResponse(status=200)
 
     return HttpResponse(status=200)
