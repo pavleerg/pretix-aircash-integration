@@ -87,7 +87,7 @@ class AircashProvider(BasePaymentProvider):
         partner_user_id = payment.order.email or payment.order.code
 
         payload = {
-            "PartnerId": self.settings.partner_id,
+            "PartnerId": self.partner_id,
             "PartnerUserId": partner_user_id,
             "PartnerTransactionId": partner_transaction_id,
             "Amount": float(payment.amount),
@@ -105,12 +105,12 @@ class AircashProvider(BasePaymentProvider):
         data_to_sign = build_data_to_sign(payload)
         payload["Signature"] = generate_signature(
             data_to_sign,
-            certificate_path=self.settings.certificate_path,
-            certificate_pass=self.settings.certificate_pass,
+            certificate_path=self.certificate_path,
+            certificate_pass=self.certificate_pass,
         )
 
         resp = requests.post(
-            self.settings.api_base.rstrip("/") + "/initiate",
+            self.api_base.rstrip("/") + "/initiate",
             json=payload,
             timeout=30,
         )
@@ -148,7 +148,7 @@ class AircashProvider(BasePaymentProvider):
         """
         Check current payment status via Aircash API and update Pretix state.
         """
-        result = query_aircash_status(payment, self.settings)
+        result = query_aircash_status(payment, self)
         status = result.get("status") or result.get("Status")
         return self._apply_status(payment, status)
 
@@ -164,7 +164,7 @@ class AircashProvider(BasePaymentProvider):
         Tries a status check; if still pending, shows message.
         """
         try:
-            result = query_aircash_status(payment, self.settings)
+            result = query_aircash_status(payment, self)
             status = result.get("status") or result.get("Status")
             self._apply_status(payment, status)
         except PaymentException as e:
