@@ -5,7 +5,7 @@ from django.shortcuts import redirect, render
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.csrf import csrf_exempt
 from pretix.presale.utils import event_view
-from pretix.base.models import OrderPayment
+from pretix.base.models import OrderPayment, Event
 from pretix.base.payment import PaymentException
 from pretix.multidomain.urlreverse import eventreverse
 
@@ -51,28 +51,26 @@ def return_cancel(request, organizer, event):
 
 
 @csrf_exempt
-@event_view 
 def webhook(request, organizer, event):
+    try:
+        event_obj = Event.objects.get(slug=event, organizer__slug=organizer)
+    except Event.DoesNotExist:
+        return HttpResponse(status=404)
+
     partner_transaction_id = request.GET.get("partnerTransactionId")
     if not partner_transaction_id:
-        return HttpResponse(status=400)
+        return HttpResponse(status=200)
 
     try:
         order_code, local_id = partner_transaction_id.split("-", 1)
-    except ValueError:
-        return HttpResponse(status=400)
-
-    try:
         payment = OrderPayment.objects.get(
-            order__event=event, order__code=order_code, local_id=local_id
+            order__event=event_obj, order__code=order_code, local_id=local_id
         )
-    except OrderPayment.DoesNotExist:
-        return HttpResponse(status=404)
-
-    provider = AircashProvider(event)
-    try:
+        provider = AircashProvider(event_obj)
         provider.check_payment_status(payment)
-    except PaymentException:
-        return HttpResponse(status=200)
+    except OrderPayment.DoesNotExist:
+        pass
+    except Exception as e:
+        logger.exception("Webhook error: %s", e)
 
     return HttpResponse(status=200)
