@@ -35,14 +35,6 @@ class AircashProvider(BasePaymentProvider):
         self.certificate_path = os.getenv("AIRCASH_CERT_PATH")
         self.certificate_pass = os.getenv("AIRCASH_CERT_PASS")
         self.public_key_path = os.getenv("AIRCASH_PUBLIC_KEY_PATH")
-
-        logger.info(
-            "########### [Aircash] Initialized with api_base=%s partner_id=%s cert_path=%s public_key_path=%s",
-            self.api_base,
-            self.partner_id,
-            self.certificate_path,
-            self.public_key_path,
-        )
     
     def payment_form_render(self, request, total, order=None) -> str:
         """
@@ -110,9 +102,6 @@ class AircashProvider(BasePaymentProvider):
             "OriginUrl": "",
             "Locale": "en-HR",
         }
-
-        logger.info("###########[Aircash] Raw payload before signing: %s", payload)
-        logger.info("###########[Aircash] Raw payload before signing: %s", self.certificate_path)
 
         data_to_sign = build_data_to_sign(payload)
         payload["Signature"] = generate_signature(
