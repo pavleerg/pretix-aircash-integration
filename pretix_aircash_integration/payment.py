@@ -10,7 +10,7 @@ from pretix.multidomain.urlreverse import build_absolute_uri
 from .utils import build_data_to_sign, generate_signature, query_aircash_status
 from django.utils.safestring import mark_safe
 from django.templatetags.static import static
-from decouple import config
+import os
 
 logger = logging.getLogger(__name__)
 
@@ -29,11 +29,11 @@ class AircashProvider(BasePaymentProvider):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.api_base = config("AIRCASH_API_BASE")
-        self.partner_id = config("AIRCASH_PARTNER_ID")
-        self.certificate_path = config("AIRCASH_CERT_PATH")
-        self.certificate_pass = config("AIRCASH_CERT_PASS")
-        self.public_key_path = config("AIRCASH_PUBLIC_KEY_PATH")
+        self.api_base = os.getenv("AIRCASH_API_BASE")
+        self.partner_id = os.getenv("AIRCASH_PARTNER_ID")
+        self.certificate_path = os.getenv("AIRCASH_CERT_PATH")
+        self.certificate_pass = os.getenv("AIRCASH_CERT_PASS")
+        self.public_key_path = os.getenv("AIRCASH_PUBLIC_KEY_PATH")
     
     def payment_form_render(self, request, total, order=None) -> str:
         """
