@@ -11,6 +11,7 @@ from .utils import build_data_to_sign, generate_signature, query_aircash_status
 from django.utils.safestring import mark_safe
 from django.templatetags.static import static
 import os
+import logging
 
 logger = logging.getLogger(__name__)
 
@@ -35,7 +36,7 @@ class AircashProvider(BasePaymentProvider):
         self.certificate_pass = os.getenv("AIRCASH_CERT_PASS")
         self.public_key_path = os.getenv("AIRCASH_PUBLIC_KEY_PATH")
 
-        print(
+        logger.info(
             "########### [Aircash] Initialized with api_base=%s partner_id=%s cert_path=%s public_key_path=%s",
             self.api_base,
             self.partner_id,
@@ -110,8 +111,8 @@ class AircashProvider(BasePaymentProvider):
             "Locale": "en-HR",
         }
 
-        print("###########[Aircash] Raw payload before signing: %s", payload)
-        print("###########[Aircash] Raw payload before signing: %s", self.certificate_path)
+        logger.info("###########[Aircash] Raw payload before signing: %s", payload)
+        logger.info("###########[Aircash] Raw payload before signing: %s", self.certificate_path)
 
         data_to_sign = build_data_to_sign(payload)
         payload["Signature"] = generate_signature(
