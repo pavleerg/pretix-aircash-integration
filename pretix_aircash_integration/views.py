@@ -64,7 +64,7 @@ def return_cancel(request, **kwargs):
 
     messages.error(request, _("Your payment was canceled. Please try again."))
 
-    complete_url = f"/{organizer.slug}/{event.slug}/order/{payment.order.code}/{payment.order.secret}/?paid=1"
+    complete_url = f"/{organizer.slug}/{event.slug}/order/{payment.order.code}/{payment.order.secret}"
     return redirect(complete_url)
 
 
