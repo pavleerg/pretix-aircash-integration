@@ -169,12 +169,12 @@ class AircashProvider(BasePaymentProvider):
         Shown on order page while still pending.
         Tries a status check; if still pending, shows message.
         """
-        try:
-            result = query_aircash_status(payment, self)
-            status = result.get("status") or result.get("Status")
-            self._apply_status(payment, status)
-        except PaymentException as e:
-            logger.warning("Aircash status check failed: %s", e)
+        # try:
+        #     result = query_aircash_status(payment, self)
+        #     status = result.get("status") or result.get("Status")
+        #     self._apply_status(payment, status)
+        # except PaymentException as e:
+        #     logger.warning("Aircash status check failed: %s", e)
 
         return render_to_string(
             "pretix_aircash_integration/pending_box.html",
