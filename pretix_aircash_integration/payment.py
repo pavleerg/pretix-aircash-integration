@@ -111,6 +111,8 @@ class AircashProvider(BasePaymentProvider):
             certificate_pass=self.certificate_pass,
         )
 
+        logger.info("Payload: %s", payload)
+
         resp = requests.post(
             self.api_base.rstrip("/") + "/initiate",
             json=payload,
