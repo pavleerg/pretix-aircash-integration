@@ -104,10 +104,6 @@ class AircashProvider(BasePaymentProvider):
             "Locale": "en-HR",
         }
 
-        logging.info("Payload:\n%s", json.dumps(payload, indent=2))
-
-
-
         data_to_sign = build_data_to_sign(payload)
         payload["Signature"] = generate_signature(
             data_to_sign,
