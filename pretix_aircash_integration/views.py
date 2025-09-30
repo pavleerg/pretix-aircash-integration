@@ -30,24 +30,41 @@ def return_ok(request, **kwargs):
     except OrderPayment.DoesNotExist:
         return redirect(f"/{organizer.slug}/{event.slug}/")
 
-    time.sleep(2)
-
-    provider = AircashProvider(event)
-    try:
-        provider.check_payment_status(payment)
-    except PaymentException as e:
-        print("Aircash check_payment_status failed:", e)
+    time.sleep(5)
 
     complete_url = f"/{organizer.slug}/{event.slug}/order/{payment.order.code}/{payment.order.secret}"
     return redirect(complete_url)
 
 
-def return_cancel(request, organizer, event):
+def return_cancel(request, **kwargs):
     """
     User returns from Aircash (cancel redirect).
     """
-    url = eventreverse(request.event, "presale:event.checkout.payment", kwargs={})
+    event = request.event
+    organizer = request.organizer
+
+    order_code = request.GET.get("order_code") or request.GET.get("order")
+    pid = request.GET.get("payment_id") or request.GET.get("payment_local_id")
+    if not order_code or not pid:
+        return redirect(f"/{organizer.slug}/{event.slug}/")
+
+    try:
+        payment = OrderPayment.objects.get(
+            order__event=event, order__code=order_code, local_id=pid
+        )
+    except OrderPayment.DoesNotExist:
+        return redirect(f"/{organizer.slug}/{event.slug}/")
+
+    payment.state = OrderPayment.PAYMENT_STATE_CANCELED
+    payment.save(update_fields=["state"])
+
+    url = eventreverse(
+        event,
+        "presale:event.order.canceled",
+        kwargs={"order": payment.order.code, "secret": payment.order.secret},
+    )
     return redirect(url)
+
 
 
 @csrf_exempt

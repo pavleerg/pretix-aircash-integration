@@ -12,6 +12,7 @@ from django.utils.safestring import mark_safe
 from django.templatetags.static import static
 import os
 import logging
+import json
 
 logger = logging.getLogger(__name__)
 
@@ -102,6 +103,10 @@ class AircashProvider(BasePaymentProvider):
             "OriginUrl": "",
             "Locale": "en-HR",
         }
+
+        logging.info("Payload:\n%s", json.dumps(payload, indent=2))
+
+
 
         data_to_sign = build_data_to_sign(payload)
         payload["Signature"] = generate_signature(
