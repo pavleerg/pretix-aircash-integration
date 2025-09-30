@@ -8,6 +8,10 @@ from pretix.presale.utils import event_view
 from pretix.base.models import OrderPayment, Event
 from pretix.base.payment import PaymentException
 from pretix.multidomain.urlreverse import eventreverse
+from django.contrib import messages
+
+import logging
+logger = logging.getLogger(__name__)
 
 from .payment import AircashProvider
 
@@ -32,7 +36,7 @@ def return_ok(request, **kwargs):
 
     time.sleep(5)
 
-    complete_url = f"/{organizer.slug}/{event.slug}/order/{payment.order.code}/{payment.order.secret}"
+    complete_url = f"/{organizer.slug}/{event.slug}/order/{payment.order.code}/{payment.order.secret}/?paid=1"
     return redirect(complete_url)
 
 
@@ -58,12 +62,10 @@ def return_cancel(request, **kwargs):
     payment.state = OrderPayment.PAYMENT_STATE_CANCELED
     payment.save(update_fields=["state"])
 
-    url = eventreverse(
-        event,
-        "presale:event.order.canceled",
-        kwargs={"order": payment.order.code, "secret": payment.order.secret},
-    )
-    return redirect(url)
+    messages.error(request, _("Your payment was canceled. Please try again."))
+
+    complete_url = f"/{organizer.slug}/{event.slug}/order/{payment.order.code}/{payment.order.secret}/?paid=1"
+    return redirect(complete_url)
 
 
 
