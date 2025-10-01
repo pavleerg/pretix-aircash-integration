@@ -143,7 +143,7 @@ def query_aircash_status(payment, settings):
         "PartnerId": settings.partner_id,
         "PartnerTransactionId": f"{payment.order.code}-{payment.local_id}",
     }
-    data_to_sign = build_data_to_sign(payload)
+    data_to_sign = build_data_to_verify(payload)
     payload["Signature"] = generate_signature(
         data_to_sign,
         certificate_path=settings.certificate_path,
@@ -164,7 +164,7 @@ def query_aircash_status(payment, settings):
     if not signature:
         raise PaymentException("Aircash response missing Signature")
 
-    data_to_verify = build_data_to_sign(data)
+    data_to_verify = build_data_to_verify(data)
     logger.info("Canonical string for verification: %s", data_to_verify)
 
     valid = verify_signature(data_to_verify, signature, settings.public_key_path)
