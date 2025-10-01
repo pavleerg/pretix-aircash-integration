@@ -130,7 +130,7 @@ class AircashProvider(BasePaymentProvider):
 
         check_aircash_status_task.apply_async(
             args=[payment.id, self.event.organizer.id],
-            countdown=330
+            countdown=20
         )
 
         return url
