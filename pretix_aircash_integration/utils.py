@@ -16,7 +16,7 @@ def build_data_to_sign(payload: dict) -> str:
     """
     items = []
     for key in sorted(payload.keys(), key=lambda x: x.lower()):
-        if key.lower() in ("signature", "events"):
+        if key == "Signature":
             continue 
 
         val = payload[key]
@@ -55,7 +55,7 @@ def build_data_to_verify(payload: dict) -> str:
 
     # Sort keys alphabetically (case-insensitive)
     for key in sorted(payload.keys(), key=lambda x: x.lower()):
-        if key.lower() == "signature":  # exclude signature itself
+        if key.lower() in ("signature", "events"):
             continue
 
         val = payload[key]
