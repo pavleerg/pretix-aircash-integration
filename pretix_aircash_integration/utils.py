@@ -16,7 +16,7 @@ def build_data_to_sign(payload: dict) -> str:
     """
     items = []
     for key in sorted(payload.keys(), key=lambda x: x.lower()):
-        if key == "Signature":
+        if key.lower() in ("signature", "events"):
             continue 
 
         val = payload[key]
