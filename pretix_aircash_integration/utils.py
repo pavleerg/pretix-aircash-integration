@@ -58,17 +58,24 @@ def build_data_to_verify(payload: dict) -> str:
         if key.lower() in ("signature", "events"):
             continue
 
-        val = payload.get(key) or payload.get(key.lower())  # handle lowercased response
+        # Look up value in multiple casings
+        val = (
+            payload.get(key)
+            or payload.get(key.lower())
+            or payload.get(key[0].lower() + key[1:])
+        )
 
         if key == "Parameters":
             if not val:
                 parts.append(f"{key}=")
             else:
                 param_parts = []
-                for item in val:  # preserve order
+                for item in val:
                     for subkey in ["Key", "Value"]:
-                        if subkey in item:
-                            param_parts.append(f"{subkey}={item[subkey]}")
+                        # handle lowercase too
+                        sval = item.get(subkey) or item.get(subkey.lower())
+                        if sval is not None:
+                            param_parts.append(f"{subkey}={sval}")
                 parts.append(f"{key}=" + "&".join(param_parts))
             continue
 
@@ -80,6 +87,7 @@ def build_data_to_verify(payload: dict) -> str:
             parts.append(f"{key}={val}")
 
     return "&".join(parts)
+
 
 
 
