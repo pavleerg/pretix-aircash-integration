@@ -51,40 +51,33 @@ def generate_signature(data_to_sign, certificate_path, certificate_pass):
 from decimal import Decimal
 
 def build_data_to_verify(payload: dict) -> str:
+    keys = ["AircashTransactionId", "Amount", "CurrencyId", "Parameters", "Status"]
     parts = []
 
-    # Sort keys alphabetically (case-insensitive)
-    for key in sorted(payload.keys(), key=lambda x: x.lower()):
+    for key in keys:
         if key.lower() in ("signature", "events"):
             continue
 
-        val = payload[key]
-        canon_key = key[0].upper() + key[1:]  # capitalize first letter
+        val = payload.get(key) or payload.get(key.lower())  # handle lowercased response
 
-        if val is None or val == "":
-            parts.append(f"{canon_key}=")
+        if key == "Parameters":
+            if not val:
+                parts.append(f"{key}=")
+            else:
+                param_parts = []
+                for item in val:  # preserve order
+                    for subkey in ["Key", "Value"]:
+                        if subkey in item:
+                            param_parts.append(f"{subkey}={item[subkey]}")
+                parts.append(f"{key}=" + "&".join(param_parts))
             continue
 
-        if isinstance(val, (float, Decimal)):
-            val = str(val).rstrip("0").rstrip(".")
-
-        elif isinstance(val, list):
-            list_parts = []
-            for item in val:  # preserve order
-                if isinstance(item, dict):
-                    subparts = []
-                    for subkey in sorted(item.keys(), key=lambda x: x.lower()):
-                        subval = item[subkey]
-                        if subval is None or subval == "":
-                            subparts.append(subkey[0].upper() + subkey[1:])
-                        else:
-                            subparts.append(f"{subkey[0].upper() + subkey[1:]}={subval}")
-                    list_parts.append("&".join(subparts))
-                else:
-                    list_parts.append(str(item))
-            val = ",".join(list_parts)
-
-        parts.append(f"{canon_key}={val}")
+        if val is None or val == "":
+            parts.append(f"{key}=")
+        else:
+            if isinstance(val, float):
+                val = str(val).rstrip("0").rstrip(".")
+            parts.append(f"{key}={val}")
 
     return "&".join(parts)
 
