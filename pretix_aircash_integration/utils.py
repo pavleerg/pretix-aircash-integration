@@ -51,27 +51,18 @@ def generate_signature(data_to_sign, certificate_path, certificate_pass):
 from decimal import Decimal
 
 def build_data_to_verify(payload: dict) -> str:
-    """
-    Build canonical string according to Aircash spec.
-    """
-    """
-    Build canonical string according to Aircash spec.
-    Preserves key casing exactly as received from Aircash.
-    """
-    """
-    Build canonical string according to Aircash spec.
-    """
     parts = []
+
+    # Sort keys alphabetically (case-insensitive)
     for key in sorted(payload.keys(), key=lambda x: x.lower()):
-        if key in ("Signature", "events"):
+        if key.lower() == "signature":  # exclude signature itself
             continue
 
         val = payload[key]
-
-        canon_key = key[0].upper() + key[1:]
+        canon_key = key[0].upper() + key[1:]  # capitalize first letter
 
         if val is None or val == "":
-            parts.append(canon_key)
+            parts.append(f"{canon_key}=")
             continue
 
         if isinstance(val, (float, Decimal)):
@@ -79,16 +70,15 @@ def build_data_to_verify(payload: dict) -> str:
 
         elif isinstance(val, list):
             list_parts = []
-            for item in val:
+            for item in val:  # preserve order
                 if isinstance(item, dict):
                     subparts = []
                     for subkey in sorted(item.keys(), key=lambda x: x.lower()):
-                        canon_subkey = subkey[0].upper() + subkey[1:]
                         subval = item[subkey]
                         if subval is None or subval == "":
-                            subparts.append(canon_subkey)
+                            subparts.append(subkey[0].upper() + subkey[1:])
                         else:
-                            subparts.append(f"{canon_subkey}={subval}")
+                            subparts.append(f"{subkey[0].upper() + subkey[1:]}={subval}")
                     list_parts.append("&".join(subparts))
                 else:
                     list_parts.append(str(item))
