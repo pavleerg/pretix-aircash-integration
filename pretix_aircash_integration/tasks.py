@@ -1,7 +1,6 @@
 import logging
 from pretix.base.models import OrderPayment, Event
 from pretix.celery_app import app
-from .payment import AircashProvider
 
 logger = logging.getLogger(__name__)
 
@@ -10,6 +9,9 @@ def check_aircash_status_task(self, event_id, payment_id):
     try:
         event = Event.objects.get(id=event_id)
         payment = OrderPayment.objects.get(id=payment_id, order__event=event)
+
+        from .payment import AircashProvider
+
         provider = AircashProvider(event)
         finished = provider.check_payment_status(payment)
         logger.info("Aircash status check for payment %s: finished=%s", payment.id, finished)
