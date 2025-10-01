@@ -153,10 +153,10 @@ def query_aircash_status(payment, settings):
         certificate_pass=settings.certificate_pass,
     )
 
-    logger.debug("-------------------Aircash request payload: %s", payload)
+    logger.info("-------------------Aircash request payload: %s", payload)
 
     resp = requests.post(url, json=payload, timeout=30)
-    logger.debug("-------------------Aircash raw response: %s", resp.text)
+    logger.info("-------------------Aircash raw response: %s", resp.text)
 
     if resp.status_code != 200:
         raise PaymentException("Aircash status API error: " + resp.text)
@@ -164,14 +164,14 @@ def query_aircash_status(payment, settings):
     data = resp.json()
 
     signature = data.pop("signature", None)
-    logger.debug("-------------------Aircash response data (without signature): %s", data)
-    logger.debug("-------------------Aircash response signature: %s", signature)
+    logger.info("-------------------Aircash response data (without signature): %s", data)
+    logger.info("-------------------Aircash response signature: %s", signature)
 
     if not signature:
         raise PaymentException("Aircash response missing Signature")
 
     valid = verify_signature(data, signature, settings.public_key_path)
-    logger.debug("-------------------Signature verification result: %s", valid)
+    logger.info("-------------------Signature verification result: %s", valid)
 
     if not valid:
         raise PaymentException("Invalid signature on Aircash response")
