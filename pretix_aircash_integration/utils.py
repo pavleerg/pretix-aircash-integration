@@ -109,6 +109,9 @@ def verify_signature(payload: dict, signature: str, public_key_path: str) -> boo
     """
     canonical = build_data_to_verify(payload)
 
+    logger.info("Canonical string for verification: %s", canonical)
+
+
     with open(public_key_path, "rb") as f:
         cert = x509.load_pem_x509_certificate(f.read(), backend=default_backend())
         pub_key = cert.public_key()
@@ -164,10 +167,8 @@ def query_aircash_status(payment, settings):
     if not signature:
         raise PaymentException("Aircash response missing Signature")
 
-    data_to_verify = build_data_to_verify(data)
-    logger.info("Canonical string for verification: %s", data_to_verify)
 
-    valid = verify_signature(data_to_verify, signature, settings.public_key_path)
+    valid = verify_signature(data, signature, settings.public_key_path)
     logger.info("Signature verification result: %s", valid)
 
     if not valid:
