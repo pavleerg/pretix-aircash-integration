@@ -21,15 +21,7 @@ def check_aircash_status_task(self, payment_id, organizer_id):
 
             finished = provider.check_payment_status(payment)
 
-            logger.info(
-                "Aircash status check for payment %s (event %s): finished=%s",
-                payment.id,
-                event.slug,
-                finished
-            )
-
     except OrderPayment.DoesNotExist:
         logger.warning("Payment %s not found (organizer_id=%s)", payment_id, organizer_id)
     except Exception as e:
-        logger.exception("Error while checking Aircash status: %s", e)
         raise self.retry(exc=e, countdown=60)

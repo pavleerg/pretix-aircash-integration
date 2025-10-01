@@ -110,8 +110,6 @@ class AircashProvider(BasePaymentProvider):
             certificate_pass=self.certificate_pass,
         )
 
-        logger.info("Payload: %s", payload)
-
         resp = requests.post(
             self.api_base.rstrip("/") + "/initiate",
             json=payload,
@@ -130,7 +128,7 @@ class AircashProvider(BasePaymentProvider):
 
         check_aircash_status_task.apply_async(
             args=[payment.id, self.event.organizer.id],
-            countdown=20
+            countdown=330
         )
 
         return url
