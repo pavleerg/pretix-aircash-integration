@@ -108,7 +108,6 @@ def verify_signature(payload: dict, signature: str, public_key_path: str) -> boo
     - public_key_path: path to Aircash's certificate PEM
     """
     canonical = build_data_to_verify(payload)
-    print(canonical)
 
     with open(public_key_path, "rb") as f:
         cert = x509.load_pem_x509_certificate(f.read(), backend=default_backend())
@@ -126,6 +125,10 @@ def verify_signature(payload: dict, signature: str, public_key_path: str) -> boo
         print("Aircash signature verification failed:", e)
         return False
 
+
+import logging
+
+logger = logging.getLogger(__name__)
 
 def query_aircash_status(payment, settings):
     """
@@ -150,15 +153,27 @@ def query_aircash_status(payment, settings):
         certificate_pass=settings.certificate_pass,
     )
 
+    logger.debug("-------------------Aircash request payload: %s", payload)
+
     resp = requests.post(url, json=payload, timeout=30)
+    logger.debug("-------------------Aircash raw response: %s", resp.text)
+
     if resp.status_code != 200:
         raise PaymentException("Aircash status API error: " + resp.text)
 
     data = resp.json()
+
     signature = data.pop("signature", None)
+    logger.debug("-------------------Aircash response data (without signature): %s", data)
+    logger.debug("-------------------Aircash response signature: %s", signature)
+
     if not signature:
         raise PaymentException("Aircash response missing Signature")
 
-    if not verify_signature(data, signature, settings.public_key_path):
+    valid = verify_signature(data, signature, settings.public_key_path)
+    logger.debug("-------------------Signature verification result: %s", valid)
+
+    if not valid:
         raise PaymentException("Invalid signature on Aircash response")
+
     return data
