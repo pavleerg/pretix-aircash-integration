@@ -13,6 +13,7 @@ from django.templatetags.static import static
 import os
 import logging
 import json
+from .tasks import check_aircash_status_task
 
 logger = logging.getLogger(__name__)
 
@@ -126,6 +127,11 @@ class AircashProvider(BasePaymentProvider):
         url = data.get("url")
         if not url:
             raise PaymentException("Aircash response missing URL")
+        
+        check_aircash_status_task.apply_async(
+            args=[self.event.id, payment.id],
+            countdown=20
+        )
 
         return url
 
