@@ -127,10 +127,10 @@ class AircashProvider(BasePaymentProvider):
             raise PaymentException("Aircash response missing URL")
         
         from .tasks import check_aircash_status_task
-        
+
         check_aircash_status_task.apply_async(
-            args=[self.event.id, payment.id],
-            countdown=20    
+        args=[payment.id, self.event.organizer.slug, self.event.slug],
+        countdown=20
         )
 
         return url
