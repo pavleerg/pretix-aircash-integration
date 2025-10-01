@@ -143,7 +143,7 @@ def query_aircash_status(payment, settings):
         "PartnerId": settings.partner_id,
         "PartnerTransactionId": f"{payment.order.code}-{payment.local_id}",
     }
-    data_to_sign = build_data_to_verify(payload)
+    data_to_sign =  (payload)
     payload["Signature"] = generate_signature(
         data_to_sign,
         certificate_path=settings.certificate_path,
