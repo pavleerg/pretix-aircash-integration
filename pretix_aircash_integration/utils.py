@@ -131,9 +131,6 @@ import logging
 logger = logging.getLogger(__name__)
 
 def query_aircash_status(payment, settings):
-    """
-    Call Aircash /status endpoint, verify response signature, return parsed JSON.
-    """
     base_url = settings.api_base.rstrip("/")
     if base_url.endswith("/v2"):
         base_url = base_url[:-3] + "/v3"
@@ -153,10 +150,10 @@ def query_aircash_status(payment, settings):
         certificate_pass=settings.certificate_pass,
     )
 
-    logger.info("-------------------Aircash request payload: %s", payload)
+    logger.info("Aircash request payload: %s", payload)
 
     resp = requests.post(url, json=payload, timeout=30)
-    logger.info("-------------------Aircash raw response: %s", resp.text)
+    logger.info("Aircash raw response: %s", resp.text)
 
     if resp.status_code != 200:
         raise PaymentException("Aircash status API error: " + resp.text)
@@ -164,14 +161,14 @@ def query_aircash_status(payment, settings):
     data = resp.json()
 
     signature = data.pop("signature", None)
-    logger.info("-------------------Aircash response data (without signature): %s", data)
-    logger.info("-------------------Aircash response signature: %s", signature)
-
     if not signature:
         raise PaymentException("Aircash response missing Signature")
 
-    valid = verify_signature(data, signature, settings.public_key_path)
-    logger.info("-------------------Signature verification result: %s", valid)
+    data_to_verify = build_data_to_sign(data)
+    logger.info("Canonical string for verification: %s", data_to_verify)
+
+    valid = verify_signature(data_to_verify, signature, settings.public_key_path)
+    logger.info("Signature verification result: %s", valid)
 
     if not valid:
         raise PaymentException("Invalid signature on Aircash response")
