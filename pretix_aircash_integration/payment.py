@@ -159,7 +159,7 @@ class AircashProvider(BasePaymentProvider):
         Check current payment status via Aircash API and update Pretix state.
         """
         result = query_aircash_status(payment, self)
-        status = result.get("status") or result.get("Status")
+        status = result.get("status")
         return self._apply_status(payment, status)
 
     def payment_is_pending(self, payment: OrderPayment) -> bool:
