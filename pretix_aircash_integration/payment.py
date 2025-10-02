@@ -167,8 +167,7 @@ class AircashProvider(BasePaymentProvider):
         return payment.state == OrderPayment.PAYMENT_STATE_PENDING
     
     def payment_prepare(self, request, payment):
-        from django.http import Http404
-        raise Http404("Retry not supported")
+        raise PaymentException("Retrying Aircash payments is not supported.")
         
     @property
     def abort_pending_allowed(self) -> bool:
