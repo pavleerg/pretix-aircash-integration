@@ -15,6 +15,7 @@ import logging
 import json
 from django.shortcuts import redirect
 from django.contrib import messages
+from pretix.multidomain.urlreverse import eventreverse
 logger = logging.getLogger(__name__)
 
 
@@ -169,8 +170,15 @@ class AircashProvider(BasePaymentProvider):
         return payment.state == OrderPayment.PAYMENT_STATE_PENDING
     
     def payment_prepare(self, request, payment):
-        messages.error(request, _("Retrying Aircash payments is not possible. Please use a different payment method."))
-        return redirect(payment.order.get_absolute_url())
+        messages.error(request, _("Retrying Aircash payments is not possible."))
+        return redirect(eventreverse(
+            payment.order.event,
+            "presale:event.order",
+            kwargs={
+                "order": payment.order.code,
+                "secret": payment.order.secret,
+            }
+        ))
         
     @property
     def abort_pending_allowed(self) -> bool:
