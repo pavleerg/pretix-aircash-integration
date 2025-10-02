@@ -15,9 +15,9 @@ def check_aircash_status_task(self, payment_id, organizer_id):
     try:
         with scope(organizer=organizer_id):
             payment = OrderPayment.objects.select_related("order__event").get(id=payment_id)
-
+            logger.info("################# TASK STARTED #################")
             if payment.state == OrderPayment.PAYMENT_STATE_CONFIRMED:
-                logger.info("Payment %s already confirmed. Skipping Aircash check.", payment.id)
+                logger.info("################# Payment %s already confirmed. Skipping Aircash check.", payment.id)
                 return
 
             event = payment.order.event
@@ -27,7 +27,7 @@ def check_aircash_status_task(self, payment_id, organizer_id):
             finished = provider.check_payment_status(payment)
 
             logger.info(
-                "Aircash status check for payment %s (finished=%s)", 
+                "################# Aircash status check for payment %s (finished=%s)", 
                 payment.id, finished
             )
 
