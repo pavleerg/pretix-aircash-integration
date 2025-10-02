@@ -167,10 +167,9 @@ class AircashProvider(BasePaymentProvider):
         return payment.state == OrderPayment.PAYMENT_STATE_PENDING
     
     def payment_prepare(self, request, payment):
-        # Always disallow retries / re-payment
-        # Return False or raise exception so Pretix will block the retry
-        return False
-    
+        from django.http import Http404
+        raise Http404("Retry not supported")
+        
     @property
     def abort_pending_allowed(self) -> bool:
         return False
