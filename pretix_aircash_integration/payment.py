@@ -13,6 +13,8 @@ from django.templatetags.static import static
 import os
 import logging
 import json
+from django.shortcuts import redirect
+from django.contrib import messages
 logger = logging.getLogger(__name__)
 
 
@@ -167,7 +169,8 @@ class AircashProvider(BasePaymentProvider):
         return payment.state == OrderPayment.PAYMENT_STATE_PENDING
     
     def payment_prepare(self, request, payment):
-        raise PaymentException("Retrying Aircash payments is not supported.")
+        messages.error(request, _("Retrying Aircash payments is not possible. Please use a different payment method."))
+        return redirect(payment.order.get_absolute_url())
         
     @property
     def abort_pending_allowed(self) -> bool:
