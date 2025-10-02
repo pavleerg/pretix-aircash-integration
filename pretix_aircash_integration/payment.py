@@ -116,7 +116,7 @@ class AircashProvider(BasePaymentProvider):
         resp = requests.post(
             self.api_base.rstrip("/") + "/initiate",
             json=payload,
-            timeout=30,
+            timeout=330,
         )
         if resp.status_code != 200:
             raise PaymentException("Aircash API error: " + resp.text)
@@ -170,7 +170,7 @@ class AircashProvider(BasePaymentProvider):
         return payment.state == OrderPayment.PAYMENT_STATE_PENDING
     
     def payment_prepare(self, request, payment):
-        messages.error(request, _("Retrying Aircash payments is not possible."))
+        messages.error(request, _("Retrying Aircash payments is not possible. If you have completed your Aircash payment, please wait a few minutes for it to be confirmed."))
         return redirect(eventreverse(
             payment.order.event,
             "presale:event.order",
