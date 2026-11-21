@@ -15,7 +15,7 @@ class PluginApp(PluginConfig):
 
     class PretixPluginMeta:
         name = gettext_lazy("AircashIntegration")
-        author = "Pavle Ergović"
+        author = "Pavle Ergović (KSET)"
         description = gettext_lazy("A plugin to allow Aircash as a payment option")
         visible = True
         version = __version__
